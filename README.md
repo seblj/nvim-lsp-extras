@@ -25,15 +25,15 @@ Each module can be set to `false` if you do not wish the functionality
 
 ```lua
 require('nvim-lsp-extras').setup({
-	signature = {
-		border = 'rounded',
-	},
-	mouse_hover = {
-		border = 'rounded',
-	},
-	lightbulb = {
-		icon = '',
-		diagnostic_only = true, -- Only lightbulb if line contains diagnostic
-	},
+    signature = {
+        border = 'rounded',
+    },
+    mouse_hover = {
+        border = 'rounded',
+    },
+    lightbulb = {
+        icon = '',
+        diagnostic_only = true, -- Only lightbulb if line contains diagnostic
+    },
 })
 ```
