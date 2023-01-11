@@ -47,19 +47,14 @@ end
 local function hover_handler(_, result, _, mouse_config)
 	mouse_config = {
 		border = config.get("mouse_hover").border,
-		silent = true,
 		relative = "mouse",
 	}
 	if not (result and result.contents) then
-		if mouse_config.silent ~= true then
-			vim.notify("No information available")
-		end
 		return
 	end
 	local markdown_lines = util.convert_input_to_markdown_lines(result.contents, {})
 	markdown_lines = util.trim_empty_lines(markdown_lines)
 	if vim.tbl_isempty(markdown_lines) then
-		vim.notify("No information available")
 		return
 	end
 	popup_bufnr, popup_winnr = util.open_floating_preview(markdown_lines, "markdown", mouse_config)
