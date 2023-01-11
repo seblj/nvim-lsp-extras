@@ -66,10 +66,16 @@ local try_close_window = function(bufnr)
 		if popup_winnr and vim.api.nvim_win_is_valid(popup_winnr) then
 			vim.schedule(function()
 				vim.api.nvim_win_close(popup_winnr, true)
+				popup_winnr = nil
 			end)
 		end
 	end
 end
+
+-- Disable hover when these filetypes is open in the window
+local disable_filetypes = {
+	"TelescopePrompt",
+}
 
 M.setup = function(client)
 	if not client.supports_method("textDocument/hover") then
@@ -95,6 +101,11 @@ M.setup = function(client)
 
 		hover_timer = vim.defer_fn(function()
 			hover_timer = nil
+			for _, win in pairs(vim.fn.getwininfo()) do
+				if vim.tbl_contains(disable_filetypes, vim.bo[win.bufnr].ft) then
+					return
+				end
+			end
 			local mouse = vim.fn.getmousepos()
 			local bufnr = vim.api.nvim_win_get_buf(mouse.winid)
 
