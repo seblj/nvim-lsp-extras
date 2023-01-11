@@ -76,7 +76,10 @@ local try_close_window = function(bufnr)
 	end
 end
 
-M.setup = function()
+M.setup = function(client)
+	if not client.supports_method("textDocument/hover") then
+		return
+	end
 	local hover_timer = nil
 	vim.o.mousemoveevent = true
 

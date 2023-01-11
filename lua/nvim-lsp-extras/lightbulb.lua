@@ -53,7 +53,10 @@ local check_code_action = function()
 	end)
 end
 
-M.setup = function()
+M.setup = function(client)
+	if not client.supports_method("textDocument/codeAction") then
+		return
+	end
 	vim.fn.sign_define(sign_name, { text = config.get("lightbulb").icon, texthl = "DiagnosticInfo" })
 
 	local group = augroup("SetupLightbulb", { clear = false })

@@ -51,6 +51,9 @@ local open_signature = function()
 end
 
 M.setup = function(client)
+	if not client.server_capabilities.signatureHelpProvider then
+		return
+	end
 	handler = vim.lsp.with(vim.lsp.handlers.signature_help, {
 		border = config.get("signature").border,
 		silent = true,
