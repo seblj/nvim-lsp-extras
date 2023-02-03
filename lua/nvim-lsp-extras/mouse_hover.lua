@@ -48,6 +48,7 @@ local function hover_handler(_, result, _, mouse_config)
 	mouse_config = {
 		border = config.get("mouse_hover").border,
 		relative = "mouse",
+		max_height = 11,
 	}
 	if not (result and result.contents) then
 		return
