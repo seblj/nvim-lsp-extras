@@ -151,7 +151,7 @@ function M.set_keymap(buf)
                 end
             end
         end
-        vim.api.nvim_feedkeys("gh", "n", false)
+        vim.notify("Couldn't find documentation", vim.log.levels.INFO)
     end, { buffer = buf, silent = true })
 end
 

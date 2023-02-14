@@ -31,8 +31,12 @@ M.set = function(user_options)
     return config
 end
 
+M.get_all = function()
+    return config
+end
+
 M.get = function(key)
-    return key and config[key] or config
+    return config[key]
 end
 
 return M
