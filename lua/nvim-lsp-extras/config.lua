@@ -11,6 +11,16 @@ local default = {
 		icon = "",
 		diagnostic_only = true,
 	},
+	treesitter_hover = {
+		highlights = {
+			["|%S-|"] = "@text.reference",
+			["@%S+"] = "@parameter",
+			["^%s*(Parameters:)"] = "@text.title",
+			["^%s*(Return:)"] = "@text.title",
+			["^%s*(See also:)"] = "@text.title",
+			["{%S-}"] = "@parameter",
+		},
+	},
 }
 
 local config = {}
