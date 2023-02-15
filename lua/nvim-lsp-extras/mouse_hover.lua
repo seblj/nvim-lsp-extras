@@ -54,8 +54,10 @@ local function hover_handler(_, result, _, mouse_config)
         return
     end
     local markdown_lines = util.convert_input_to_markdown_lines(result.contents, {})
+    -- Trim empty lines does not trim empty lines if there is only one line and
+    -- it is empty
     markdown_lines = util.trim_empty_lines(markdown_lines)
-    if vim.tbl_isempty(markdown_lines) then
+    if vim.tbl_isempty(markdown_lines) or #markdown_lines == 1 and markdown_lines[1] == "" then
         return
     end
     popup_bufnr, popup_winnr = util.open_floating_preview(markdown_lines, "markdown", mouse_config)
