@@ -73,15 +73,8 @@ local function newline(tbl)
     table.insert(tbl, { content = "", extmarks = {} })
 end
 
-local function append(tbl, item)
-    if #tbl == 0 then
-        newline(tbl)
-    end
-    if type(item) == "string" then
-        tbl[#tbl].content = item
-    else
-        table.insert(tbl[#tbl].extmarks, item)
-    end
+local function append_extmarks(tbl, extmarks)
+    table.insert(tbl[#tbl].extmarks, extmarks)
 end
 
 local function append_string(tbl, content)
@@ -90,22 +83,11 @@ local function append_string(tbl, content)
     while text ~= "" do
         local nl = text:find("\n")
         if nl then
-            local str = text:sub(1, nl - 1)
-
-            -- handle carriage returns. They overwrite the line from the first character
-            if str:find("\r") then
-                local parts = vim.split(str, "\r", { plain = true })
-                str = ""
-                for _, p in ipairs(parts) do
-                    str = p .. str:sub(p:len() + 1)
-                end
-            end
-
-            append(tbl, content)
+            tbl[#tbl].content = content
             newline(tbl)
             text = text:sub(nl + 1)
         else
-            append(tbl, content)
+            tbl[#tbl].content = content
             break
         end
     end
@@ -116,17 +98,21 @@ function M.format(text)
     local md_lines = 0
     local ret = {}
 
+    local function emit_markdown()
+        if md_lines > 0 then
+            append_extmarks(ret, { lang = "markdown", lines = md_lines })
+            md_lines = 0
+        end
+    end
+
     for _, block in ipairs(blocks) do
         if block.code then
-            if md_lines > 0 then
-                append(ret, { lang = "markdown", lines = md_lines })
-                md_lines = 0
-            end
+            emit_markdown()
             newline(ret)
             for c, line in ipairs(block.code) do
                 append_string(ret, line)
                 if c == #block.code then
-                    append(ret, { lang = block.lang, lines = #block.code })
+                    append_extmarks(ret, { lang = block.lang, lines = #block.code })
                 else
                     newline(ret)
                 end
@@ -134,7 +120,7 @@ function M.format(text)
         else
             newline(ret)
             if markdown.is_rule(block.line) then
-                append(ret, {
+                append_extmarks(ret, {
                     virt_text_win_col = 0,
                     virt_text = { { string.rep("─", vim.go.columns), "@punctuation.special.markdown" } },
                     priority = 100,
@@ -142,16 +128,13 @@ function M.format(text)
             else
                 append_string(ret, block.line)
                 for _, t in ipairs(markdown.get_highlights(block.line)) do
-                    append(ret, t)
+                    append_extmarks(ret, t)
                 end
                 md_lines = md_lines + 1
             end
         end
     end
-    if md_lines > 0 then
-        append(ret, { lang = "markdown", lines = md_lines })
-        md_lines = 0
-    end
+    emit_markdown()
     return ret
 end
 
