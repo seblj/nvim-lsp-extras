@@ -52,7 +52,8 @@ function M.parse(text)
             end
         elseif is_code_block(line) then
             ---@type string
-            local lang = line:match("```(%S+)") or "text"
+            local backup_lang = vim.bo.ft == "rust" and "rust" or "text"
+            local lang = line:match("```(%S+)") or backup_lang
             local block = { lang = lang, code = {} }
             while lines[l + 1] and not is_code_block(lines[l + 1]) do
                 table.insert(block.code, lines[l + 1])
