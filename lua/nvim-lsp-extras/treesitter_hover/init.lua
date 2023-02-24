@@ -1,5 +1,6 @@
 local text = require("nvim-lsp-extras.treesitter_hover.text")
 local markdown = require("nvim-lsp-extras.treesitter_hover.markdown")
+local util = require("vim.lsp.util")
 
 local M = {}
 
@@ -23,6 +24,17 @@ local function on_module(module, fn)
     end
 end
 
+--- Return empty table if contents only contains empty strings
+local function assert_content(contents)
+    -- Avoid that the content is only a table of empty strings
+    for _, line in ipairs(contents) do
+        if line ~= "" then
+            return contents
+        end
+    end
+    return {}
+end
+
 function M.setup()
     on_module("cmp.entry", function(mod)
         mod.get_documentation = function(self)
@@ -35,7 +47,7 @@ function M.setup()
         contents = contents or {}
         local ret = markdown.format_markdown(input)
         vim.list_extend(contents, ret)
-        return contents
+        return assert_content(contents)
     end
 
     vim.lsp.util.stylize_markdown = function(buf, contents, _)
