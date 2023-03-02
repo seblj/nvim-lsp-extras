@@ -33,8 +33,9 @@ local function highlight(extmark, bufnr, ns_id, linenr, byte_start)
 
     if extmark.lang then
         local range = { linenr - extmark.lines, extmark.col and byte_start + extmark.col - 1 or 0, linenr, byte_start }
-        if vim.treesitter.language.require_language(extmark.lang, nil, true) then
-            treesitter.highlight(bufnr, ns_id, range, extmark.lang)
+        local lang = vim.treesitter.language.get_lang(extmark.lang)
+        if pcall(vim.treesitter.language.add, lang) then
+            treesitter.highlight(bufnr, ns_id, range, lang or extmark.lang)
         else
             syntax.highlight(bufnr, ns_id, range, extmark.lang)
         end
