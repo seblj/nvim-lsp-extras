@@ -3,24 +3,6 @@
 ---@diagnostic disable: invisible
 local M = {}
 
----@param buf buffer
----@param injections table<string, number[][][]>
-function M.highlight_markdown(buf, injections)
-    local parser = vim.treesitter.get_parser(buf, "markdown")
-    local get_injections = parser._get_injections
-    parser._get_injections = function(self)
-        ---@type table<string, number[][][]>
-        local ret = get_injections(self)
-        for lang, regions in pairs(injections) do
-            ret[lang] = ret[lang] or {}
-            vim.list_extend(ret[lang], regions)
-        end
-        return ret
-    end
-    parser:invalidate()
-    parser:parse()
-end
-
 --- Highlights a region of the buffer with a given language
 ---@param buf buffer buffer to highlight. Defaults to the current buffer if 0
 ---@param ns number namespace for the highlights
