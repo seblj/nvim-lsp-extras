@@ -26,7 +26,7 @@ end
 ---@param text string
 function M.parse(text)
     ---@type string
-    text = text:gsub("</?pre>", "```")
+    text = text:gsub("</?pre>", "```"):gsub("\r", ""):gsub("(\\)(%p)", "%2"):gsub("</?code>", "")
     text = html_entities(text)
 
     local ret = {}
