@@ -1,6 +1,10 @@
 # nvim-lsp-extras
 
-Some extra functionality I use to make neovim lsp a bit better. Depends on new functionality in Neovim 0.9 that was merged 10.01.2023
+Some extra functionality I use to make neovim lsp a bit better.
+
+## Requirements
+
+- Neovim 0.9
 
 ## Installation
 
