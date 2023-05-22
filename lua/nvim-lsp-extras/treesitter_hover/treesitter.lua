@@ -2,6 +2,14 @@
 
 ---@diagnostic disable: invisible
 local M = {}
+local queries = {}
+
+local function get_query(lang)
+    if not queries[lang] then
+        queries[lang] = vim.treesitter.query.get(lang, "highlights")
+    end
+    return queries[lang]
+end
 
 --- Highlights a region of the buffer with a given language
 ---@param buf buffer buffer to highlight. Defaults to the current buffer if 0
@@ -26,10 +34,7 @@ function M.highlight(buf, ns, range, lang)
             return
         end
 
-        -- TODO: adjust after neovim 10 become dependency
-        local highlighter_query = vim.treesitter.query.get
-          and vim.treesitter.query.get(tree:lang(), "highlights")
-           or vim.treesitter.query.get_query(tree:lang(), "highlights")
+        local highlighter_query = get_query(tree:lang())
 
         -- Some injected languages may not have highlight queries.
         if not highlighter_query then

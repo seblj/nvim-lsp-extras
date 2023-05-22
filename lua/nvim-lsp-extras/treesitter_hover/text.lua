@@ -5,7 +5,7 @@ local markdown = require("nvim-lsp-extras.treesitter_hover.markdown")
 local M = {}
 
 local function conceal_escape_characters(buf, ns, range)
-    local chars = "\\`*_{}[]()#+-.!"
+    local chars = "\\`*_{}[]()#+-.!\"/<>&=;':"
     local regex = "\\["
     for i = 1, #chars do
         regex = regex .. "%" .. chars:sub(i, i)

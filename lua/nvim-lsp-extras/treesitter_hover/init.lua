@@ -39,7 +39,19 @@ function M.setup()
     on_module("cmp.entry", function(mod)
         mod.get_documentation = function(self)
             local item = self:get_completion_item()
-            return item.documentation and markdown.format_markdown(item.documentation) or {}
+
+            local lines = item.documentation and markdown.format_markdown(item.documentation) or {}
+            local ret = table.concat(lines, "\n")
+
+            if item.detail and not ret:find(item.detail, 1, true) then
+                local ft = self.context.filetype
+                local dot_index = string.find(ft, "%.")
+                if dot_index ~= nil then
+                    ft = string.sub(ft, 0, dot_index - 1)
+                end
+                ret = ("```%s\n%s\n```\n%s"):format(ft, vim.trim(item.detail), ret)
+            end
+            return vim.split(ret, "\n")
         end
     end)
 
