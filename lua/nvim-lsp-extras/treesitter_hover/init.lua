@@ -63,6 +63,7 @@ function M.setup()
     end
 
     vim.lsp.util.stylize_markdown = function(buf, contents, _)
+        vim.api.nvim_buf_clear_namespace(buf, M.ns, 0, -1)
         local content = table.concat(contents, "\n")
         local formatted_text = text.format(content)
         text.render(formatted_text, buf, M.ns)
