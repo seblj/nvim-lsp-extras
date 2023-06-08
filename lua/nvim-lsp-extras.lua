@@ -4,7 +4,7 @@ local config = require("nvim-lsp-extras.config")
 M.setup = function(opts)
     config.set(opts)
 
-    for conf, _ in pairs(config.get_all()) do
+    for conf, _ in pairs(config.get_modules()) do
         if config.get(conf) then
             vim.api.nvim_create_autocmd("LspAttach", {
                 pattern = "*",

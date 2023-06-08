@@ -1,6 +1,9 @@
 local M = {}
 
 local default = {
+    global = {
+        border = nil,
+    },
     signature = {
         border = "rounded",
     },
@@ -31,8 +34,10 @@ M.set = function(user_options)
     return config
 end
 
-M.get_all = function()
-    return config
+M.get_modules = function()
+    local modules = vim.deepcopy(config)
+    modules["global"] = nil
+    return modules
 end
 
 M.get = function(key)

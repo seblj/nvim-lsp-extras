@@ -55,7 +55,7 @@ M.setup = function(client)
         return
     end
     handler = vim.lsp.with(vim.lsp.handlers.signature_help, {
-        border = config.get("signature").border,
+        border = config.get("global").border or config.get("signature").border,
         silent = true,
         focusable = false,
     })
