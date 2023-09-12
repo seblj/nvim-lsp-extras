@@ -11,7 +11,7 @@ local default = {
         border = "rounded",
     },
     lightbulb = {
-        icon = "",
+        icon = "",
         diagnostic_only = true,
     },
     treesitter_hover = {
