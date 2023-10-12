@@ -1,5 +1,4 @@
 local treesitter = require("nvim-lsp-extras.treesitter_hover.treesitter")
-local syntax = require("nvim-lsp-extras.treesitter_hover.syntax")
 local markdown = require("nvim-lsp-extras.treesitter_hover.markdown")
 
 local M = {}
@@ -35,11 +34,7 @@ local function highlight(extmark, bufnr, ns_id, linenr, byte_start)
         local range =
             { linenr - extmark.lines, extmark.col and byte_start + extmark.col - 1 or 0, linenr, byte_start + 1 }
         local lang = vim.treesitter.language.get_lang(extmark.lang)
-        if pcall(vim.treesitter.language.add, lang) then
-            treesitter.highlight(bufnr, ns_id, range, lang or extmark.lang)
-        else
-            syntax.highlight(bufnr, ns_id, range, extmark.lang)
-        end
+        treesitter.highlight(bufnr, ns_id, range, lang or extmark.lang)
         if extmark.lang == "markdown" then
             conceal_escape_characters(bufnr, ns_id, range)
         end

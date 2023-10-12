@@ -1,6 +1,11 @@
 local text = require("nvim-lsp-extras.treesitter_hover.text")
 local markdown = require("nvim-lsp-extras.treesitter_hover.markdown")
-local util = require("vim.lsp.util")
+
+-- Hack to override vim.lsp.util.open_floating_preview as I don't like the way
+-- it looks in master
+if vim.lsp.util._normalize_markdown then
+    require("nvim-lsp-extras.treesitter_hover.hack")
+end
 
 local M = {}
 
