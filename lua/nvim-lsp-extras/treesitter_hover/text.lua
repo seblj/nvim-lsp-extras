@@ -34,7 +34,9 @@ local function highlight(extmark, bufnr, ns_id, linenr, byte_start)
         local range =
             { linenr - extmark.lines, extmark.col and byte_start + extmark.col - 1 or 0, linenr, byte_start + 1 }
         local lang = vim.treesitter.language.get_lang(extmark.lang)
-        treesitter.highlight(bufnr, ns_id, range, lang or extmark.lang)
+        if pcall(vim.treesitter.get_parser, bufnr, lang or extmark.lang) then
+            treesitter.highlight(bufnr, ns_id, range, lang or extmark.lang)
+        end
         if extmark.lang == "markdown" then
             conceal_escape_characters(bufnr, ns_id, range)
         end
