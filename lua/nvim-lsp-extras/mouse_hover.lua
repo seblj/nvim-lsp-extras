@@ -68,7 +68,7 @@ local try_close_window = function(bufnr)
     if bufnr ~= popup_bufnr then
         if popup_winnr and vim.api.nvim_win_is_valid(popup_winnr) then
             vim.schedule(function()
-                vim.api.nvim_win_close(popup_winnr, true)
+                pcall(vim.api.nvim_win_close, popup_winnr, true)
                 popup_winnr = nil
             end)
         end
