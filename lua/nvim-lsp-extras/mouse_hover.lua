@@ -4,7 +4,7 @@ local util = require("vim.lsp.util")
 local popup_bufnr, popup_winnr
 
 local function make_position_param(mouse, bufnr, offset_encoding)
-    local clients = vim.lsp.get_active_clients({ bufnr = bufnr })
+    local clients = vim.lsp.get_clients({ bufnr = bufnr })
     if not clients then
         return
     end
@@ -53,14 +53,19 @@ local function hover_handler(_, result, _, mouse_config)
     if not (result and result.contents) then
         return
     end
-    local markdown_lines = util.convert_input_to_markdown_lines(result.contents, {})
-    -- Trim empty lines does not trim empty lines if there is only one line and
-    -- it is empty
-    markdown_lines = util.trim_empty_lines(markdown_lines)
-    if vim.tbl_isempty(markdown_lines) or #markdown_lines == 1 and markdown_lines[1] == "" then
+
+    local format = "markdown"
+    local contents ---@type string[]
+    if type(result.contents) == "table" and result.contents.kind == "plaintext" then
+        format = "plaintext"
+        contents = vim.split(result.contents.value or "", "\n", { trimempty = true })
+    else
+        contents = util.convert_input_to_markdown_lines(result.contents)
+    end
+    if vim.tbl_isempty(contents) then
         return
     end
-    popup_bufnr, popup_winnr = util.open_floating_preview(markdown_lines, "markdown", mouse_config)
+    popup_bufnr, popup_winnr = util.open_floating_preview(contents, format, mouse_config)
     return popup_bufnr, popup_winnr
 end
 

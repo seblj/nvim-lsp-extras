@@ -47,6 +47,7 @@ local function find_window_by_var(name, value)
     end
 end
 
+---@diagnostic disable-next-line: duplicate-set-field
 function vim.lsp.util.open_floating_preview(contents, syntax, opts)
     vim.validate({
         contents = { contents, "t" },

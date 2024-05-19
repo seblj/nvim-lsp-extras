@@ -60,6 +60,7 @@ function M.setup()
         end
     end)
 
+    ---@diagnostic disable-next-line: duplicate-set-field
     vim.lsp.util.convert_input_to_markdown_lines = function(input, contents)
         contents = contents or {}
         local ret = markdown.format_markdown(input)
@@ -67,6 +68,7 @@ function M.setup()
         return assert_content(contents)
     end
 
+    ---@diagnostic disable-next-line: duplicate-set-field
     vim.lsp.util.stylize_markdown = function(buf, contents, _)
         vim.api.nvim_buf_clear_namespace(buf, M.ns, 0, -1)
         local content = table.concat(contents, "\n")

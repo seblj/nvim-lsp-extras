@@ -1,7 +1,4 @@
 local M = {}
-local config = require("nvim-lsp-extras.config")
-local augroup = vim.api.nvim_create_augroup
-local autocmd = vim.api.nvim_create_autocmd
 local util = require("vim.lsp.util")
 local handler
 local clients = {}
@@ -51,6 +48,7 @@ local open_signature = function()
 end
 
 M.setup = function(client)
+    local config = require("nvim-lsp-extras.config")
     if not client.server_capabilities.signatureHelpProvider then
         return
     end
@@ -62,9 +60,9 @@ M.setup = function(client)
 
     table.insert(clients, client)
 
-    local group = augroup("LspSignature", { clear = false })
+    local group = vim.api.nvim_create_augroup("LspSignature", { clear = false })
     vim.api.nvim_clear_autocmds({ group = group, pattern = "<buffer>" })
-    autocmd("TextChangedI", {
+    vim.api.nvim_create_autocmd("TextChangedI", {
         group = group,
         pattern = "<buffer>",
         callback = function()
@@ -82,6 +80,7 @@ end
 
 -- Hack to highlight active signature because of `open_floating_preview`
 -- override I have
+---@diagnostic disable-next-line: duplicate-set-field
 vim.lsp.handlers.signature_help = function(_, result, ctx, config)
     config = config or {}
     config.focus_id = ctx.method
