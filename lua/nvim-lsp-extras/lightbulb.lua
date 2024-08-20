@@ -41,9 +41,9 @@ local check_code_action = function()
         return
     end
     local bufnr = vim.api.nvim_get_current_buf()
+    local lnum, _ = unpack(vim.api.nvim_win_get_cursor(0))
     local context = {
-        ---@diagnostic disable-next-line: missing-parameter
-        diagnostics = vim.lsp.diagnostic.get_line_diagnostics(bufnr),
+        diagnostics = vim.diagnostic.get(0, { lnum = lnum - 1 }),
     }
     local params = lsp_util.make_range_params()
     params.context = context
