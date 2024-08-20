@@ -65,13 +65,13 @@ M.setup = function(client)
         group = group,
         pattern = "<buffer>",
         callback = function()
-            -- Guard against spamming of method not supported after
-            -- stopping a language serer with LspStop
+            -- Always check that at least one client is supporting this, as a server coul be stopped
             local active_clients = vim.lsp.get_clients()
-            if #active_clients < 1 then
-                return
+            for _, c in ipairs(active_clients) do
+                if c.supports_method("textDocument/codeAction") then
+                    check_code_action()
+                end
             end
-            check_code_action()
         end,
         desc = "Start lightbulb for code actions",
     })
