@@ -25,18 +25,12 @@ local open_signature = function()
     local triggered = false
 
     for _, client in pairs(clients) do
-        local triggers = client.server_capabilities.signatureHelpProvider.triggerCharacters
-
-        -- csharp has wrong trigger chars for some odd reason
-        if client.name == "csharp" then
-            triggers = { "(", "," }
-        end
-
         local pos = vim.api.nvim_win_get_cursor(0)
         local line = vim.api.nvim_get_current_line()
         local line_to_cursor = line:sub(1, pos[2])
 
         if not triggered then
+            local triggers = client.server_capabilities.signatureHelpProvider.triggerCharacters
             triggered = check_trigger_char(line_to_cursor, triggers)
         end
     end
@@ -69,10 +63,11 @@ M.setup = function(client)
             -- Guard against spamming of method not supported after
             -- stopping a language serer with LspStop
             local active_clients = vim.lsp.get_clients()
-            if #active_clients < 1 then
-                return
+            for _, c in ipairs(active_clients) do
+                if c.supports_method("textDocument/codeAction") then
+                    open_signature()
+                end
             end
-            open_signature()
         end,
         desc = "Start lsp signature",
     })
