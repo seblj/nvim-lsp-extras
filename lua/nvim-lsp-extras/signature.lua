@@ -64,7 +64,7 @@ M.setup = function(client)
             -- stopping a language serer with LspStop
             local active_clients = vim.lsp.get_clients()
             for _, c in ipairs(active_clients) do
-                if c.supports_method("textDocument/codeAction") then
+                if c.server_capabilities.signatureHelpProvider then
                     open_signature()
                 end
             end
