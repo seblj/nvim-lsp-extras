@@ -1,82 +1,36 @@
 local M = {}
 local config = require("nvim-lsp-extras.config")
-local util = require("vim.lsp.util")
 local popup_bufnr, popup_winnr
 
-local function make_position_param(mouse, bufnr, offset_encoding)
+local make_params = function(mouse, bufnr)
     local clients = vim.lsp.get_clients({ bufnr = bufnr })
-    if not clients then
-        return
-    end
-    local supports = false
-    for _, client in pairs(clients) do
-        if client.supports_method("textDocument/hover") then
-            supports = true
-            break
-        end
-    end
+    local supports = vim.iter(clients or {}):any(function(client)
+        return client.supports_method("textDocument/hover")
+    end)
+
     if not supports then
-        return
-    end
-    local row = mouse.line - 1
-    local col = mouse.column
-
-    offset_encoding = offset_encoding or util._get_offset_encoding(bufnr)
-    local line = vim.api.nvim_buf_get_lines(bufnr, row, row + 1, true)[1]
-    if not line or #line < col then
         return nil
     end
 
-    col = util._str_utfindex_enc(line, col, offset_encoding)
-
-    return { line = row, character = col }
-end
-
-local make_params = function(mouse, bufnr, offset_encoding)
-    offset_encoding = offset_encoding or util._get_offset_encoding(bufnr)
-    local position = make_position_param(mouse, bufnr, offset_encoding)
-    if not position then
+    local line = vim.api.nvim_buf_get_lines(bufnr, mouse.line - 1, mouse.line, true)[1]
+    if not line or #line < mouse.column then
         return nil
     end
+
+    local col = vim.lsp.util._str_utfindex_enc(line, mouse.column, vim.lsp.util._get_offset_encoding(bufnr))
+
     return {
-        textDocument = util.make_text_document_params(bufnr),
-        position = position,
+        textDocument = vim.lsp.util.make_text_document_params(bufnr),
+        position = { line = mouse.line - 1, character = col },
     }
-end
-
-local function hover_handler(_, result, _, mouse_config)
-    mouse_config = {
-        border = config.get("global").border or config.get("mouse_hover").border,
-        relative = "mouse",
-        max_height = 11,
-    }
-    if not (result and result.contents) then
-        return
-    end
-
-    local format = "markdown"
-    local contents ---@type string[]
-    if type(result.contents) == "table" and result.contents.kind == "plaintext" then
-        format = "plaintext"
-        contents = vim.split(result.contents.value or "", "\n", { trimempty = true })
-    else
-        contents = util.convert_input_to_markdown_lines(result.contents)
-    end
-    if vim.tbl_isempty(contents) then
-        return
-    end
-    popup_bufnr, popup_winnr = util.open_floating_preview(contents, format, mouse_config)
-    return popup_bufnr, popup_winnr
 end
 
 local try_close_window = function(bufnr)
-    if bufnr ~= popup_bufnr then
-        if popup_winnr and vim.api.nvim_win_is_valid(popup_winnr) then
-            vim.schedule(function()
-                pcall(vim.api.nvim_win_close, popup_winnr, true)
-                popup_winnr = nil
-            end)
-        end
+    if bufnr ~= popup_bufnr and popup_winnr and vim.api.nvim_win_is_valid(popup_winnr) then
+        vim.schedule(function()
+            pcall(vim.api.nvim_win_close, popup_winnr, true)
+            popup_winnr = nil
+        end)
     end
 end
 
@@ -85,6 +39,7 @@ local disable_filetypes = {
     "TelescopePrompt",
 }
 
+---@param client vim.lsp.Client
 M.setup = function(client)
     if not client.supports_method("textDocument/hover") then
         return
@@ -123,7 +78,21 @@ M.setup = function(client)
             if not params then
                 return
             end
-            vim.lsp.buf_request(bufnr, "textDocument/hover", params, hover_handler)
+
+            vim.lsp.buf_request(
+                bufnr,
+                "textDocument/hover",
+                params,
+                vim.lsp.with(function(_, result, ctx, c)
+                    popup_bufnr, popup_winnr = vim.lsp.handlers.hover(_, result, ctx, c)
+                    return popup_bufnr, popup_winnr
+                end, {
+                    focusable = false,
+                    relative = "mouse",
+                    border = config.get("global").border or config.get("mouse_hover").border,
+                    silent = true,
+                })
+            )
         end, 500)
         return "<MouseMove>"
     end, { expr = true })

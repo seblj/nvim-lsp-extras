@@ -11,7 +11,7 @@ M.setup = function(opts)
                 group = vim.api.nvim_create_augroup(string.format("%sLspExtra", conf), { clear = true }),
                 callback = function(args)
                     local client = vim.lsp.get_client_by_id(args.data.client_id)
-                    require(string.format("nvim-lsp-extras.%s", conf)).setup(client)
+                    require(string.format("nvim-lsp-extras.%s", conf)).setup(client, args.buf)
                 end,
             })
         end
