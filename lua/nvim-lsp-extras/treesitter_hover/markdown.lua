@@ -85,7 +85,9 @@ end
 
 function M.get_highlights(line)
     local ret = {}
-    for pattern, hl_group in pairs(config.get("treesitter_hover").highlights) do
+    local conf = config.get("treesitter_hover")
+    local highlights = type(conf) == "table" and conf.highlights or {}
+    for pattern, hl_group in pairs(highlights) do
         local from = 1
         while from do
             local to, match
