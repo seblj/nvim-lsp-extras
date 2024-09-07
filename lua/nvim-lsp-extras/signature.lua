@@ -23,7 +23,7 @@ M.setup = function(client, bufnr)
                 local prev_char = line_to_cursor:sub(#line_to_cursor - 1, #line_to_cursor - 1)
 
                 if current_char == trigger_char or (current_char == " " and prev_char == trigger_char) then
-                    return active.request(
+                    active.request(
                         "textDocument/signatureHelp",
                         vim.lsp.util.make_position_params(),
                         vim.lsp.with(vim.lsp.handlers.signature_help, {

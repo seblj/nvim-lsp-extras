@@ -4,7 +4,7 @@ local popup_bufnr, popup_winnr
 
 local make_params = function(mouse, bufnr)
     local clients = vim.lsp.get_clients({ bufnr = bufnr })
-    local supports = vim.iter(clients or {}):any(function(client)
+    local supports = vim.iter(clients):any(function(client)
         return client.supports_method("textDocument/hover")
     end)
 
@@ -47,16 +47,6 @@ M.setup = function(client)
     local hover_timer = nil
     vim.o.mousemoveevent = true
 
-    vim.api.nvim_create_autocmd({ "FocusLost", "FocusGained" }, {
-        pattern = "*",
-        group = vim.api.nvim_create_augroup("HoverFocusClear", { clear = true }),
-        callback = function()
-            local mouse = vim.fn.getmousepos()
-            local bufnr = vim.api.nvim_win_get_buf(mouse.winid)
-            try_close_window(bufnr)
-        end,
-    })
-
     vim.keymap.set({ "", "i" }, "<MouseMove>", function()
         if hover_timer then
             hover_timer:close()
@@ -84,6 +74,8 @@ M.setup = function(client)
                 "textDocument/hover",
                 params,
                 vim.lsp.with(function(_, result, ctx, c)
+                    -- Hack to get hover for split which the cursor is not in
+                    ctx.bufnr = vim.api.nvim_get_current_buf()
                     popup_bufnr, popup_winnr = vim.lsp.handlers.hover(_, result, ctx, c)
                     return popup_bufnr, popup_winnr
                 end, {
@@ -91,6 +83,7 @@ M.setup = function(client)
                     relative = "mouse",
                     border = config.get("global").border or config.get("mouse_hover").border,
                     silent = true,
+                    close_events = { "CursorMoved", "CursorMovedI", "InsertCharPre", "FocusLost", "FocusGained" },
                 })
             )
         end, 500)
