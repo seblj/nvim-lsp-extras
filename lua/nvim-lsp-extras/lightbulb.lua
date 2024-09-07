@@ -1,16 +1,6 @@
-local sign_name = "LightbulbSign"
-local sign_group = "LightbulbGroup"
-local old_line = nil
+local ns = vim.api.nvim_create_namespace("LightbulbSign")
 local config = require("nvim-lsp-extras.config")
 local M = {}
-
-local changed_line = function(lnum)
-    if lnum == old_line then
-        return false
-    end
-    old_line = lnum
-    return true
-end
 
 ---@param client vim.lsp.Client
 ---@param bufnr integer
@@ -18,7 +8,6 @@ M.setup = function(client, bufnr)
     if not client.supports_method("textDocument/codeAction") then
         return
     end
-    vim.fn.sign_define(sign_name, { text = config.get("lightbulb").icon, texthl = "DiagnosticInfo" })
 
     vim.api.nvim_create_autocmd({ "CursorHold", "CursorMoved" }, {
         group = vim.api.nvim_create_augroup(
@@ -42,18 +31,18 @@ M.setup = function(client, bufnr)
 
             client.request("textDocument/codeAction", params, function(_, results)
                 if #(results and results[1] or {}) > 0 then
-                    return vim.fn.sign_unplace(sign_group)
+                    return vim.api.nvim_buf_clear_namespace(0, ns, 0, -1)
                 end
 
                 -- Only show actions if there are diagnostics
                 if config.get("lightbulb").diagnostic_only and #params.context.diagnostics == 0 then
-                    return vim.fn.sign_unplace(sign_group)
+                    return vim.api.nvim_buf_clear_namespace(0, ns, 0, -1)
                 end
 
-                if changed_line(lnum) then
-                    vim.fn.sign_unplace(sign_group)
-                end
-                vim.fn.sign_place(0, sign_group, sign_name, bufnr, { lnum = vim.fn.line("."), priority = 1000 })
+                vim.api.nvim_buf_set_extmark(0, ns, lnum, 0, {
+                    sign_text = config.get("lightbulb").icon,
+                    sign_hl_group = "DiagnosticInfo",
+                })
             end)
         end,
         desc = "Start lightbulb for code actions",
