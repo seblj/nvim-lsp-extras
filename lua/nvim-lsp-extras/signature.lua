@@ -1,5 +1,7 @@
 local M = {}
 
+local sig_help_ns = vim.api.nvim_create_namespace("nvim_lsp_extras_signature_help")
+
 ---@param client vim.lsp.Client
 M.setup = function(client, bufnr)
     local config = require("nvim-lsp-extras.config")
@@ -70,7 +72,7 @@ vim.lsp.handlers.signature_help = function(_, result, ctx, config)
     end
     local fbuf, fwin = vim.lsp.util.open_floating_preview(lines, "markdown", config)
     if hl then
-        vim.api.nvim_buf_add_highlight(fbuf, -1, "LspSignatureActiveParameter", 0, unpack(hl))
+        vim.hl.range(fbuf, sig_help_ns, "LspSignatureActiveParameter", { hl[1] - 1, hl[2] }, { hl[3] - 1, hl[4] })
     end
     return fbuf, fwin
 end
