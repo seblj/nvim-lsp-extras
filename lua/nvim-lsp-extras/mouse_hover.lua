@@ -17,7 +17,7 @@ local make_params = function(mouse, bufnr)
         return nil
     end
 
-    local col = vim.lsp.util._str_utfindex_enc(line, mouse.column, vim.lsp.util._get_offset_encoding(bufnr))
+    local col = vim.str_byteindex(line, vim.lsp.util._get_offset_encoding(bufnr), mouse.column, false)
 
     return {
         textDocument = vim.lsp.util.make_text_document_params(bufnr),
